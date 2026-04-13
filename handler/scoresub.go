@@ -46,17 +46,17 @@ func SubmitScore(c *gin.Context) {
 	log.Printf("SubmitScore: Processing score for user %s: %+v\n", userIDStr, score)
 
 	//store score in redis
-	gameKey := "Leaderboard:" + score.Game
+	gameKey := "Leaderboard:" + score.Game + "C9S27"
 
 	//get current / all time leaderboard
-	err := redis.Client.ZIncrBy(redis.Ctx, gameKey+":all_time", float64(score.Score), userIDStr).Err()
+	err := redis.Client.ZIncrBy(redis.Ctx, gameKey+":C9S27", float64(score.Score), userIDStr).Err()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update LB"})
 		return
 	}
 
 	//Get weekkly LB
-	weekLBKey := GetWeekRankKey()
+	weekLBKey := getWeekRankKey()
 	err = redis.Client.ZIncrBy(redis.Ctx, gameKey+":weekly:"+weekLBKey, float64(score.Score), userIDStr).Err()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update weekly LB"})
@@ -82,7 +82,7 @@ func SubmitScore(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "Score submitted Successfully",
+		  "message": "Score submitted Successfully",
 		"score":   score.Score,
 	})
 }
@@ -91,7 +91,7 @@ func ScoreCalc(kills int, damage float64, survive float64) int {
 	return kills*100 + int(damage) + int(survive*10)
 }
 
-func GetWeekRankKey() string {
+func getWeekRankKey() string {
 	now := time.Now()
 	year, week := now.ISOWeek()
 	return string(rune(year)) + "-" + string(rune(week))
